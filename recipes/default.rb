@@ -1,10 +1,16 @@
+
+# Install Nginx and PHP packages
 package 'nginx'
 package 'php-fpm'
+package 'php-cli'
 
-service 'nginx' do
-  action [:enable, :start]
+# Ensure PHP is installed before detecting the version
+execute 'install_php' do
+  command 'apt install -y php-cli'
+  not_if 'which php'
 end
 
+# Detect installed PHP version dynamically
 ruby_block 'detect_php_version' do
   block do
     php_version = `php -v | grep -oP '^PHP \\K[0-9]+\\.[0-9]+'`.strip
@@ -12,15 +18,22 @@ ruby_block 'detect_php_version' do
   end
 end
 
+# Enable and start PHP-FPM service with the correct version
 service 'php-fpm' do
   service_name lazy { "php#{node['php_version']}-fpm" }
   action [:enable, :start]
   only_if { ::File.exist?("/run/php/php#{node['php_version']}-fpm.sock") }
 end
 
+# Ensure Nginx service is enabled and started
+service 'nginx' do
+  action [:enable, :start]
+end
+
 # Configure Nginx to support PHP
 file '/etc/nginx/sites-available/default' do
-  content <<-EOH
+  content lazy {
+    <<-EOH
 server {
     listen 80;
     server_name _;
@@ -38,7 +51,8 @@ server {
         include fastcgi_params;
     }
 }
-  EOH
+    EOH
+  }
   notifies :restart, 'service[nginx]', :immediately
 end
 
