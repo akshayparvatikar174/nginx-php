@@ -1,7 +1,3 @@
-# Update package lists before installation
-execute 'update_packages' do
-  command 'apt update'
-end
 
 # Add PHP repository (only if needed)
 execute 'add_php_repo' do
