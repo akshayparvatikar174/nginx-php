@@ -1,14 +1,19 @@
-
-# Install Nginx and PHP packages
-package 'nginx'
-package 'php-fpm'
-package 'php-cli'
-
-# Ensure PHP is installed before detecting the version
-execute 'install_php' do
-  command 'apt install -y php-cli'
-  not_if 'which php'
+# Update package lists before installation
+execute 'update_packages' do
+  command 'apt update'
 end
+
+# Add PHP repository (only if needed)
+execute 'add_php_repo' do
+  command 'add-apt-repository -y ppa:ondrej/php && apt update'
+  not_if 'apt-cache policy | grep -q ondrej/php'
+end
+
+# Install Nginx
+package 'nginx'
+
+# Install PHP and PHP-FPM
+package %w(php-cli php-fpm)
 
 # Detect installed PHP version dynamically
 ruby_block 'detect_php_version' do
@@ -18,14 +23,13 @@ ruby_block 'detect_php_version' do
   end
 end
 
-# Enable and start PHP-FPM service with the correct version
+# Ensure PHP-FPM is installed with the correct service name
 service 'php-fpm' do
   service_name lazy { "php#{node['php_version']}-fpm" }
   action [:enable, :start]
-  only_if { ::File.exist?("/run/php/php#{node['php_version']}-fpm.sock") }
 end
 
-# Ensure Nginx service is enabled and started
+# Ensure Nginx is enabled and started
 service 'nginx' do
   action [:enable, :start]
 end
@@ -55,12 +59,11 @@ server {
   }
   notifies :restart, 'service[nginx]', :immediately
 end
-
-# Deploy PHP file to display Nginx version
+# Deploy PHP file to test Nginx and PHP
 file '/var/www/html/index.php' do
   content <<-EOH
 <?php
-echo "<h1>Welcome to Your Nginx Server Akshay Parvatikar!</h1>";
+echo "<h1>Welcome to Your Nginx Server!</h1>";
 echo "<p>Installed Nginx Version: " . shell_exec('nginx -v 2>&1 | cut -d":" -f2') . "</p>";
 ?>
   EOH
@@ -69,7 +72,7 @@ echo "<p>Installed Nginx Version: " . shell_exec('nginx -v 2>&1 | cut -d":" -f2'
   group 'www-data'
 end
 
-# Restart Nginx to apply changes
+# Restart Nginx
 service 'nginx' do
   action :restart
 end
