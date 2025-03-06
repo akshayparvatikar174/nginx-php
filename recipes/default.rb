@@ -1,3 +1,12 @@
+# Install Nginx
+package 'nginx'
+
+# Ensure Nginx is enabled and running
+service 'nginx' do
+  action [:enable, :start]
+end
+
+# Deploy HTML landing page
 file '/var/www/html/index.html' do
   content <<-EOH
 <!DOCTYPE html>
@@ -16,4 +25,9 @@ file '/var/www/html/index.html' do
   mode '0644'
   owner 'www-data'
   group 'www-data'
+end
+
+# Restart Nginx to apply changes
+service 'nginx' do
+  action :restart
 end
