@@ -1,10 +1,3 @@
-# Install Nginx
-package 'nginx'
-
-# Ensure Nginx is enabled and running
-service 'nginx' do
-  action [:enable, :start]
-end
 
 # Deploy HTML landing page
 file '/var/www/html/index.html' do
