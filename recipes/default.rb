@@ -39,7 +39,7 @@ file '/var/www/html/index.html' do
 </head>
 <body>
     <div class="container">
-        <h1>Machine yet to be configured!</h1>
+        <h1>This machine is yet to be configured!</h1>
         <p>Your web server is up and running.</p>
         <p class="version">Installed Nginx Version: <strong>1.24.0</strong></p>
     </div>
