@@ -10,29 +10,30 @@ file '/var/www/html/index.html' do
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #2196F3, #1E88E5);
-            color: white;
+            background-color: #ADD8E6; /* Light blue background */
+            color: #333;
             text-align: center;
             padding: 50px;
             margin: 0;
         }
         .container {
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(255, 255, 255, 0.9);
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.3);
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
             display: inline-block;
         }
         h1 {
             font-size: 40px;
             margin-bottom: 10px;
+            color: #0056b3;
         }
         p {
             font-size: 22px;
             font-weight: bold;
         }
         .version {
-            color: #FFEB3B;
+            color: #D32F2F;
             font-size: 24px;
         }
     </style>
@@ -54,4 +55,4 @@ end
 # Restart Nginx to apply changes
 service 'nginx' do
   action :restart
-end
+end  
